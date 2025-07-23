@@ -28,45 +28,16 @@ import type {
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url);
-  const range = url.searchParams.get("range") || "Month";
-
-  let data;
-
-  switch (range) {
-    case "Day":
-      data = Array.from({ length: 7 }, (_, i) => ({
-        date: `7/${i + 1}`,
-        index: Math.floor(Math.random() * 500),
-        product: 100,
-        cart: 200,
-      }));
-      break;
-
-    case "Week":
-      data = [
-        { date: "Week 1", index: 1000, product: 300, cart: 400 },
-        { date: "Week 2", index: 1500, product: 400, cart: 500 },
-        { date: "Week 3", index: 2000, product: 300, cart: 600 },
-        { date: "Week 4", index: 1800, product: 350, cart: 700 },
-      ];
-      break;
-
-    case "Month":
-    default:
-      data = [
-        { date: "4/01", index: 1500, product: 200, cart: 500 },
-        { date: "4/05", index: 1000, product: 200, cart: 400 },
-        { date: "4/10", index: 3000, product: 200, cart: 600 },
-        { date: "4/15", index: 4500, product: 200, cart: 700 },
-        { date: "4/20", index: 8500, product: 200, cart: 900 },
-        { date: "4/25", index: 6000, product: 200, cart: 1000 },
-        { date: "4/30", index: 7000, product: 200, cart: 800 },
-      ];
-      break;
-  }
-
+export const loader: LoaderFunction = async () => {
+  const data = [
+    { date: "4/01", index: 1500, product: 200, cart: 500 },
+    { date: "4/05", index: 1000, product: 200, cart: 400 },
+    { date: "4/10", index: 3000, product: 200, cart: 600 },
+    { date: "4/15", index: 4500, product: 200, cart: 700 },
+    { date: "4/20", index: 8500, product: 200, cart: 900 },
+    { date: "4/25", index: 6000, product: 200, cart: 1000 },
+    { date: "4/30", index: 7000, product: 200, cart: 800 },
+  ];
   return json({ chartData: data });
 };
 
@@ -77,7 +48,7 @@ const CustomTooltip = ({
 }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
     const item = payload[0];
-    console.log('item: ', item);
+    console.log("item: ", item);
     return (
       <div
         style={{
@@ -137,10 +108,10 @@ export default function Index() {
     return (
       <div
         style={{
-          width: "192px",
+          width: "182px",
           height: "76px",
-          padding: "15px",
-          border: "1px solid #ccc",
+          padding: "10px",
+          boxShadow: "0 0 0 1px #E3E3E3, 0 1px 1px #B5B5B5",
           borderRadius: "6px",
           display: "flex",
           flexDirection: "column",
@@ -222,18 +193,18 @@ export default function Index() {
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
+                justifyContent: "center",
                 padding: "10px 0",
                 flexWrap: "wrap",
-                gap: "1rem",
+                gap: "20px",
                 marginBottom: 5,
               }}
             >
-              <InlineStack gap="100">
+              {/* <InlineStack gap="100"> */}
                 {statCard("Index", 500, -2, "page")}
                 {statCard("Product", 0, 0, "pages")}
                 {statCard("Cart", 100, 2, "pages")}
-              </InlineStack>
+              {/* </InlineStack> */}
             </div>
 
             <Divider />
@@ -264,6 +235,10 @@ export default function Index() {
                 borderRadius: "10px",
                 height: "362px",
                 padding: 10,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: "30px",
               }}
             >
               <div
@@ -312,24 +287,26 @@ export default function Index() {
               </div>
 
               <Box>
-                <div style={{ height: 310 }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                <div style={{ height: 310, padding: 0 }}>
+                  <ResponsiveContainer width="100%" height="80%">
                     <LineChart data={chartData}>
                       <Tooltip content={<CustomTooltip />} />
                       <XAxis
                         dataKey="date"
                         padding={{ left: 20, right: 20 }}
                         color="gray"
-                        tickMargin={15}
+                        tickMargin={20}
                         tickLine={false}
                         axisLine={{ stroke: "#E3E3E3" }}
+                        tick={{ fill: "#616161", fontSize: 11 }}
                       />
                       <YAxis
                         ticks={[0, 2000, 4000, 6000, 8000, 10000]}
                         tickFormatter={(value) => `${value / 1000}k`}
-                        tickMargin={15}
+                        tickMargin={20}
                         tickLine={false}
                         axisLine={{ stroke: "#E3E3E3" }}
+                        tick={{ fill: "#616161", fontSize: 11 }}
                       />
                       {showIndex && (
                         <Line
