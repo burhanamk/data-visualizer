@@ -9,7 +9,6 @@ import {
   Button,
   Text,
   InlineStack,
-  Box,
   Checkbox,
   Divider,
   Popover,
