@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "42b532cecca24076988546a74dbef385"
-application_url = "https://cu-tile-webcams-tutorials.trycloudflare.com"
+application_url = "https://chile-pickup-deals-dictionary.trycloudflare.com"
 embedded = true
 name = "data-visualizer"
 handle = "data-visualizer-1"
@@ -23,9 +23,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://cu-tile-webcams-tutorials.trycloudflare.com/auth/callback",
-  "https://cu-tile-webcams-tutorials.trycloudflare.com/auth/shopify/callback",
-  "https://cu-tile-webcams-tutorials.trycloudflare.com/api/auth/callback"
+  "https://chile-pickup-deals-dictionary.trycloudflare.com/auth/callback",
+  "https://chile-pickup-deals-dictionary.trycloudflare.com/auth/shopify/callback",
+  "https://chile-pickup-deals-dictionary.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
