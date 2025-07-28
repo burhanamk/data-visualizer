@@ -2,17 +2,14 @@ import { json } from "@remix-run/node";
 import "../styles/data-visualizer.css";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { CalendarIcon } from "@shopify/polaris-icons";
 import { useEffect, useState } from "react";
 import {
-  Modal,
   Button,
   Text,
   InlineStack,
   Checkbox,
   Divider,
-  Popover,
-  ActionList,
+  Grid,
 } from "@shopify/polaris";
 import {
   LineChart,
@@ -22,6 +19,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { statCard } from "app/components/StatCards";
+import {
+  useAppBridge,
+  Modal as AppBridgeModal,
+  TitleBar,
+} from "@shopify/app-bridge-react";
+import { CustomSelect } from "app/components/CustomDropdown";
 
 type CustomTooltipProps = {
   active?: boolean;
@@ -60,6 +64,7 @@ const CustomTooltip = (props: CustomTooltipProps) => {
       (entry: any) => entry.name === props.hoveredLine,
     );
     const { name, value } = item[0] || {};
+
     if (name && value) {
       return (
         <div
@@ -84,30 +89,34 @@ const CustomTooltip = (props: CustomTooltipProps) => {
     }
     return null;
   }
-
   return null;
 };
 
 export default function Index() {
   const { chartData } = useLoaderData<typeof loader>();
-
-  const [active, setActive] = useState(true);
-
+  const shopify = useAppBridge();
   const [showIndex, setShowIndex] = useState(true);
   const [showProduct, setShowProduct] = useState(true);
   const [showCart, setShowCart] = useState(true);
   const [hoveredLine, setHoveredLine] = useState<string | null>("Index page");
-
-  const [popoverActive, setPopoverActive] = useState(false);
   const [selectedRange, setSelectedRange] = useState("Month");
   const [filteredChartData, setFilteredChartData] = useState(chartData);
-  const togglePopoverActive = () => setPopoverActive((active) => !active);
+  const [modalOpen, setModalOpen] = useState(true);
+
+
+  const toggleModal = () => {
+    if (!modalOpen) {
+      shopify?.modal?.show?.("chart-modal");
+    } else {
+      shopify?.modal?.hide?.("chart-modal");
+    }
+    setModalOpen(!modalOpen);
+  };
 
   const timeRanges = ["Day", "Week", "Month"];
 
   const handleSelect = (value: string) => {
     setSelectedRange(value);
-    setPopoverActive(false);
   };
 
   useEffect(() => {
@@ -117,93 +126,46 @@ export default function Index() {
     setFilteredChartData(filteredData);
   }, [chartData, selectedRange]);
 
-  const toggleModal = () => setActive(!active);
-
-  const statCard = (
-    title: string,
-    value: number,
-    change: number,
-    subTitle: string,
-  ) => {
-    const positive = change >= 0;
-    const posValue = value > 0;
-    return (
-      <div className="stat-cards">
-        <InlineStack gap="100" align="space-between" blockAlign="center">
-          <Text as="h1" variant="bodyMd" fontWeight="medium">
-            <span style={{ fontSize: "13px" }}>{title}</span>
-          </Text>
-          <Text as="h5" variant="bodyMd" fontWeight="medium">
-            <span
-              style={{
-                color: posValue ? "#0C5132" : "#000000",
-                fontSize: "16px",
-              }}
-            >
-              {value > 0 ? `+${value}` : value}
-            </span>
-          </Text>
-        </InlineStack>
-        <InlineStack gap="100" align="space-between" blockAlign="center">
-          <Text as="h3" variant="bodyMd" fontWeight="medium">
-            <span style={{ fontSize: "13px" }}>{subTitle}</span>
-          </Text>
-          <Text as="h3" variant="bodyMd" fontWeight="regular">
-            <span style={{ color: positive ? "#008060" : "#8E1F0B" }}>
-              {(positive ? "+" : "") + String(change) + "%"}
-            </span>
-          </Text>
-        </InlineStack>
-      </div>
-    );
-  };
-
   return (
     <>
       <Button onClick={toggleModal}>View Chart</Button>
+      <AppBridgeModal open={modalOpen} id="chart-modal">
+        <TitleBar title="Page views"></TitleBar>
+        <div style={{ padding: 20 }}>
+          <TitleBar title="Page Views">
+            <Button onClick={() => shopify.modal.hide("chart-modal")}>
+              Close
+            </Button>
+          </TitleBar>
+          <Grid columns={{ xs: 1, sm: 2 }}>
+            <Grid.Cell>
+              <Text variant="headingMd" as="h2" fontWeight="semibold">
+                Page views statistics
+              </Text>
+            </Grid.Cell>
+            <Grid.Cell>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  position: "relative",
+                }}
+              >
+                <CustomSelect
+                  selected={selectedRange}
+                  onChange={handleSelect}
+                  options={timeRanges}
+                />
+              </div>
+            </Grid.Cell>
+          </Grid>
 
-      <Modal open={active} onClose={toggleModal} title="Page views">
-        <Modal.Section>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "1rem",
-              padding: "10px 0 10px 0",
-            }}
-          >
-            <Text variant="headingMd" as="h2" fontWeight="semibold">
-              <span style={{ fontSize: "16px" }}>Page views statistics</span>
-            </Text>
-
-            <Popover
-              active={popoverActive}
-              activator={
-                <Button
-                  icon={CalendarIcon}
-                  onClick={togglePopoverActive}
-                  disclosure
-                >
-                  {selectedRange}
-                </Button>
-              }
-              onClose={togglePopoverActive}
-            >
-              <ActionList
-                items={timeRanges.map((label) => ({
-                  content: label,
-                  onAction: () => handleSelect(label),
-                }))}
-              />
-            </Popover>
-          </div>
-
-          <div className="stat-cards-container">
-            {statCard("Index", 500, -2, "page")}
-            {statCard("Product", 0, 0, "pages")}
-            {statCard("Cart", 100, 2, "pages")}
+          <div style={{ padding: "20px 0" }}>
+            <Grid columns={{ xs: 1, sm: 3, md: 3 }}>
+              <Grid.Cell>{statCard("Index", 500, -2, "page")}</Grid.Cell>
+              <Grid.Cell>{statCard("Product", 0, 0, "pages")}</Grid.Cell>
+              <Grid.Cell>{statCard("Cart", 100, 2, "pages")}</Grid.Cell>
+            </Grid>
           </div>
 
           <Divider />
@@ -264,7 +226,6 @@ export default function Index() {
                 <h1>Cart pages</h1>
               </InlineStack>
             </div>
-
             <div className="chart">
               <ResponsiveContainer width="100%" height="80%">
                 <LineChart data={filteredChartData}>
@@ -328,8 +289,8 @@ export default function Index() {
               </ResponsiveContainer>
             </div>
           </div>
-        </Modal.Section>
-      </Modal>
+        </div>
+      </AppBridgeModal>
     </>
   );
 }
