@@ -137,7 +137,7 @@ export default function Index() {
               Close
             </Button>
           </TitleBar>
-          <Grid columns={{ xs: 1, sm: 2 }}>
+          <Grid columns={{ xs: 2, sm: 2 }}>
             <Grid.Cell>
               <Text variant="headingMd" as="h2" fontWeight="semibold">
                 Page views statistics
